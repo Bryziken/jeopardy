@@ -1,119 +1,80 @@
 #include <iostream>
-#include <cstdlib>
+#include <fstream>
 #include <string>
-#include <sstream>
+#include <cstdlib>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 
-// Helper to get POST data from stdin
-string getPostData() {
-    char* lenStr = getenv("CONTENT_LENGTH");
-    if (!lenStr) return "";
-    int len = atoi(lenStr);
-    string data(len, '\0');
-    cin.read(&data[0], len);
+// Utility to get environment variable or empty string
+string getEnv(const string& key) {
+    const char* val = getenv(key.c_str());
+    return val ? string(val) : "";
+}
+
+// Reads stdin content
+string readStdin(size_t length) {
+    string data(length, '\0');
+    cin.read(&data[0], length);
     return data;
 }
 
-// Simple URL decoder
-string urlDecode(const string& str) {
-    string result;
-    for (size_t i = 0; i < str.length(); ++i) {
-        if (str[i] == '+') {
-            result += ' ';
-        } else if (str[i] == '%' && i + 2 < str.length()) {
-            string hex = str.substr(i + 1, 2);
-            result += static_cast<char>(strtol(hex.c_str(), nullptr, 16));
-            i += 2;
-        } else {
-            result += str[i];
-        }
-    }
-    return result;
-}
-
-// Parse key=value pairs from POST data
-string getValue(const string& data, const string& key) {
-    size_t pos = data.find(key + "=");
-    if (pos == string::npos) return "";
-    size_t start = pos + key.length() + 1;
+// Extracts value for a key in url-encoded form data
+string extractFormField(const string& data, const string& key) {
+    size_t start = data.find(key + "=");
+    if (start == string::npos) return "";
+    start += key.length() + 1;
     size_t end = data.find("&", start);
-    string value = data.substr(start, end - start);
-    return urlDecode(value);
+    return data.substr(start, end - start);
 }
 
 int main() {
-    cout << "Content-type: text/html\r\n\r\n";
+    cout << "Content-type: text/html\n\n";
 
-    string postData = getPostData();
-    string numStr = getValue(postData, "numTeams");
-
-    int numTeams;
-    stringstream(numStr) >> numTeams;
-
-    cout << R"(
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Enter Team Names</title>
-  <style>
-    body {
-      background-color: #001f3f;
-      color: gold;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      text-align: center;
-      padding: 50px;
+    string method = getEnv("REQUEST_METHOD");
+    if (method != "POST") {
+        cout << "<p>Error: Only POST method is supported.</p>";
+        return 1;
     }
 
-    h1 {
-      font-size: 3rem;
-      text-shadow: 2px 2px #000;
+    string contentType = getEnv("CONTENT_TYPE");
+    string contentLengthStr = getEnv("CONTENT_LENGTH");
+
+    if (contentType.find("multipart/form-data") != string::npos) {
+        // Not implemented: parsing multipart form data (advanced)
+        cout << "<p>Error: File upload via multipart/form-data is not yet supported in this version.</p>";
+        return 1;
     }
 
-    form {
-      margin-top: 30px;
-    }
+    // Handle x-www-form-urlencoded POST
+    size_t contentLength = atoi(contentLengthStr.c_str());
+    string postData = readStdin(contentLength);
 
-    input[type='text'] {
-      font-size: 1rem;
-      margin: 5px 0;
-      padding: 8px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      width: 200px;
-    }
-
-    input[type='submit'] {
-      margin-top: 20px;
-      font-size: 1.2rem;
-      padding: 8px 16px;
-      background-color: #2ECC40;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-)";
+    string numTeamsStr = extractFormField(postData, "numTeams");
+    int numTeams = atoi(numTeamsStr.c_str());
 
     if (numTeams < 2 || numTeams > 9) {
-        cout << "<h1>Error: Please enter a number between 2 and 9.</h1>";
-    } else {
-        cout << "<h1>Enter Team Names</h1>";
-        cout << "<form method='post' action='index.cgi'>\n";
-        for (int i = 1; i <= numTeams; ++i) {
-            cout << "<input type='text' name='team" << i
-                 << "' placeholder='Team " << i << " Name'><br>\n";
-        }
-        cout << "<input type='submit' value='Start Game'>\n";
-        cout << "</form>\n";
+        cout << "<h1 style='color: red;'>Invalid number of teams. Please enter a value between 2 and 9.</h1>";
+        return 1;
     }
 
-    cout << "</body></html>\n";
+    // Output the next HTML form
+    cout << "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Team Names</title>";
+    cout << "<style>body { background-color: #001f3f; color: gold; font-family: sans-serif; text-align: center; padding: 50px; }";
+    cout << "input { font-size: 1.2rem; margin: 10px; padding: 8px; border-radius: 5px; border: none; width: 250px; }";
+    cout << "button { font-size: 1.2rem; padding: 10px 20px; background-color: #0074D9; color: white; border: none; border-radius: 8px; cursor: pointer; }";
+    cout << "button:hover { background-color: #39CCCC; }</style></head><body>";
 
+    cout << "<h1>Enter Team Names</h1>";
+    cout << "<form action='/cgi-bin/scorePage.cgi' method='post'>";
+    for (int i = 1; i <= numTeams; ++i) {
+        cout << "<input type='text' name='team" << i << "' placeholder='Team " << i << " Name' required><br>";
+    }
+    cout << "<input type='hidden' name='teamCount' value='" << numTeams << "'>";
+    cout << "<button type='submit'>Continue to Game</button>";
+    cout << "</form>";
+
+    cout << "</body></html>";
     return 0;
 }

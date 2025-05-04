@@ -9,7 +9,7 @@
       color: gold;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       text-align: center;
-      padding: 50px;
+      padding: 60px 20px;
     }
 
     h1 {
@@ -19,26 +19,36 @@
     }
 
     label {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
+      display: block;
+      margin-bottom: 10px;
     }
 
-    input[type="number"] {
+    input[type="number"],
+    input[type="file"] {
       font-size: 1.2rem;
-      padding: 5px 10px;
-      width: 80px;
-      text-align: center;
+      padding: 8px;
       border-radius: 5px;
       border: none;
+      text-align: center;
+      background-color: #f8f8f8;
+      color: #111;
+      width: 200px;
+    }
+
+    input[type="file"] {
+      background-color: #fff;
+      margin-top: 15px;
     }
 
     button {
       font-size: 1.2rem;
-      padding: 8px 20px;
+      margin-top: 25px;
+      padding: 10px 20px;
       background-color: #0074D9;
       color: white;
       border: none;
       border-radius: 8px;
-      margin-left: 10px;
       cursor: pointer;
     }
 
@@ -46,30 +56,40 @@
       background-color: #39CCCC;
     }
 
-    form {
-      margin-top: 30px;
-    }
-
     .note {
       margin-top: 15px;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       color: lightgray;
     }
 
     audio {
-      margin-top: 40px;
+      margin-top: 50px;
+    }
+
+    .container {
+      background-color: #003366;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      display: inline-block;
     }
   </style>
 </head>
 <body>
   <h1>Jeopardy Team Setup</h1>
 
-  <form action="/cgi-bin/teamSetup" method="post">
-    <label for="numInputs">Enter number of teams (2–9):</label>
-    <input type="number" id="numInputs" name="numTeams" min="2" max="9" required>
-    <button type="submit">Continue</button>
-    <div class="note">(Team name entry will appear on the next page.)</div>
-  </form>
+  <div class="container">
+    <form action="/cgi-bin/teamSetup.cgi" method="post" enctype="multipart/form-data">
+      <label for="numTeams">Number of Teams (2–9):</label>
+      <input type="number" id="numTeams" name="numTeams" min="2" max="9" required>
+
+      <label for="jsonFile">Upload Question File (.json):</label>
+      <input type="file" id="jsonFile" name="questionFile" accept=".json">
+
+      <button type="submit">Generate</button>
+      <div class="note">You’ll be prompted to name each team on the next page.</div>
+    </form>
+  </div>
 
   <audio controls autoplay>
     <source src="jeopardy-theme.mp3" type="audio/mpeg">
