@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Team Setup</title>
+  <style>
+    body {
+      background-color: #001f3f;
+      color: gold;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+
+    h1 {
+      font-size: 3rem;
+      text-shadow: 2px 2px #000;
+      margin-bottom: 40px;
+    }
+
+    label {
+      font-size: 1.2rem;
+    }
+
+    input[type="number"] {
+      font-size: 1.2rem;
+      padding: 5px 10px;
+      width: 80px;
+      text-align: center;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      font-size: 1.2rem;
+      padding: 8px 20px;
+      background-color: #0074D9;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #39CCCC;
+    }
+
+    form {
+      margin-top: 30px;
+    }
+
+    .note {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: lightgray;
+    }
+
+    audio {
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Jeopardy Team Setup</h1>
+
+  <form action="/cgi-bin/teamSetup.cgi" method="post">
+    <label for="numInputs">Enter number of teams (2–9):</label>
+    <input type="number" id="numInputs" name="numTeams" min="2" max="9" required>
+    <button type="submit">Continue</button>
+    <div class="note">(Team name entry will appear on the next page.)</div>
+  </form>
+
+  <audio controls autoplay>
+    <source src="jeopardy-theme.mp3" type="audio/mpeg">
+    <source src="jeopardy-theme.ogg" type="audio/ogg">
+    Your browser does not support the audio element.
+  </audio>
+</body>
+</html>
