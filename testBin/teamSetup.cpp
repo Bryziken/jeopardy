@@ -26,11 +26,22 @@ int main() {
 
         // Get team count
         const_form_iterator it = cgi.getElement("numTeams");
-        if (it == cgi.getElements().end() || !it->isInteger()) {
-            cout << h2("Invalid or missing number of teams.") << endl;
+        if (it == cgi.getElements().end()) {
+            cout << h2("Missing number of teams.") << endl;
             cout << "</body></html>";
             return 1;
         }
+        
+        string numTeamsStr = it->getValue();
+        regex intRegex("^[0-9]+$");
+        
+        if (!regex_match(numTeamsStr, intRegex)) {
+            cout << h2("Invalid input: Please enter a number between 2 and 9.") << endl;
+            cout << "</body></html>";
+            return 1;
+        }
+        
+        int numTeams = stoi(numTeamsStr);
 
         int numTeams = it->getIntegerValue();
 
