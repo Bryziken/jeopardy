@@ -1,5 +1,4 @@
 #include <iostream>
-// #include <regex>
 #include <cgicc/Cgicc.h>
 #include <cgicc/FormEntry.h>
 #include <cgicc/HTTPHTMLHeader.h>
@@ -44,14 +43,6 @@ int main() {
             return 1;
         }
         
-        // regex intRegex("^[0-9]+$");
-
-        // if (!regex_match(numTeamsStr, intRegex)) {
-        //     cout << h2("Invalid input: Please enter a number between 2 and 9.") << endl;
-        //     cout << "</body></html>";
-        //     return 1;
-        // }
-
         int numTeams = stoi(numTeamsStr);
 
         if (numTeams < 2 || numTeams > 9) {
@@ -60,7 +51,7 @@ int main() {
             return 1;
         }
 
-        // Form to enter team names
+
         cout << h1("Enter Team Names") << endl;
         cout << "<form action='/cgi-bin/uploadQuestions' method='post' enctype='multipart/form-data'>" << endl;
 
