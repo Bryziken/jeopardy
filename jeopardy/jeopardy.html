@@ -167,27 +167,10 @@
 
   <div class="container"></div>
 
-  <div id="scoreboard" style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-top: 30px;">
-    <div class="team-counter">
-      <h2>Team 1</h2>
-      <div class="score-display">0</div>
-      <div class="score-buttons">
-        <button onclick="changeScore(this, -100)">-100</button>
-        <button onclick="changeScore(this, 100)">+100</button>
-      </div>
-    </div>
-    <button onclick="resetBoard()" style="margin-top:20px; padding:10px 20px; font-size:1.5rem; background-color: #2ECC40; color:white; border:none; border-radius:8px;">
-      Restart Game
-    </button>
-    <div class="team-counter">
-      <h2>Team 2</h2>
-      <div class="score-display">0</div>
-      <div class="score-buttons">
-        <button onclick="changeScore(this, -100)">-100</button>
-        <button onclick="changeScore(this, 100)">+100</button>
-      </div>
-    </div>
-  </div>
+  <div id="scoreboard" style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-top: 30px;"></div>
+<button onclick="resetBoard()" style="margin-top:20px; padding:10px 20px; font-size:1.5rem; background-color: #2ECC40; color:white; border:none; border-radius:8px;">
+  Restart Game
+</button>
 
   <!-- Modal -->
   <div id="modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:#001f3fdd; color:white; display:flex; justify-content:center; align-items:center; z-index:9999;">
@@ -217,6 +200,16 @@
           alert("Failed to load questions.");
         });
     });
+    fetch("/~ortegbry@kean.edu/cgi-bin/getScores")
+  .then(res => res.json())
+  .then(data => {
+    teamsData = data;
+    displayTeams(teamsData);
+  })
+  .catch(err => {
+    console.error("Error loading teams:", err);
+    alert("Failed to load teams.");
+  });
 
     function populateBoard(data) {
       const container = document.querySelector(".container");
@@ -281,21 +274,6 @@
       currentScore += delta;
       display.textContent = currentScore;
     }
-
-    // Audio unlock
-    const hoverSound = document.getElementById('hoverSound');
-    const clickSound = document.getElementById('clickSound');
-    let audioUnlocked = false;
-    const unlockAudio = () => {
-      if (!audioUnlocked) {
-        hoverSound.play().then(() => {
-          hoverSound.pause();
-          hoverSound.currentTime = 0;
-          audioUnlocked = true;
-        }).catch(() => { });
-      }
-    };
-    document.body.addEventListener('click', unlockAudio, { once: true });
   </script>
 </body>
 
