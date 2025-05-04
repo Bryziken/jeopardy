@@ -1,9 +1,9 @@
 #include <iostream>
+#include <regex>
 #include <cgicc/Cgicc.h>
 #include <cgicc/FormEntry.h>
 #include <cgicc/HTTPHTMLHeader.h>
 #include <cgicc/HTMLClasses.h>
-#include <regex>
 
 using namespace std;
 using namespace cgicc;
@@ -25,26 +25,23 @@ int main() {
 
         cout << body() << endl;
 
-        // Get team count
         const_form_iterator it = cgi.getElement("numTeams");
         if (it == cgi.getElements().end()) {
             cout << h2("Missing number of teams.") << endl;
             cout << "</body></html>";
             return 1;
         }
-        
+
         string numTeamsStr = it->getValue();
         regex intRegex("^[0-9]+$");
-        
+
         if (!regex_match(numTeamsStr, intRegex)) {
             cout << h2("Invalid input: Please enter a number between 2 and 9.") << endl;
             cout << "</body></html>";
             return 1;
         }
-        
-        int numTeams = stoi(numTeamsStr);
 
-        int numTeams = it->getIntegerValue();
+        int numTeams = stoi(numTeamsStr);
 
         if (numTeams < 2 || numTeams > 9) {
             cout << h2("Number of teams must be between 2 and 9.") << endl;
@@ -54,12 +51,13 @@ int main() {
 
         // Form to enter team names
         cout << h1("Enter Team Names") << endl;
-        cout << "<form action='/cgi-bin/uploadQuestions' method='post'>" << endl;
+        cout << "<form action='/cgi-bin/uploadQuestions' method='post' enctype='multipart/form-data'>" << endl;
 
         for (int i = 1; i <= numTeams; ++i) {
             cout << "<input type='text' name='team" << i << "' placeholder='Team " << i << " Name' required><br>" << endl;
         }
 
+        cout << "<input type='file' name='jsonFile' accept='.json' required><br><br>" << endl;
         cout << "<input type='hidden' name='teamCount' value='" << numTeams << "'>" << endl;
         cout << "<button type='submit'>Continue to Game</button>" << endl;
         cout << "</form>" << endl;
