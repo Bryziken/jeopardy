@@ -1,65 +1,87 @@
 #include <iostream>
-#include <fstream>
 #include <string>
-#include <cstdlib>
-#include <vector>
 #include <sstream>
+#include <map>
+#include <cstdlib>
 
 using namespace std;
 
-// Utility to get environment variable or empty string
-string getEnv(const string& key) {
-    const char* val = getenv(key.c_str());
-    return val ? string(val) : "";
+// Decode percent-encoded characters (e.g., %20 => space)
+string urlDecode(const string& str) {
+    string result;
+    for (size_t i = 0; i < str.size(); ++i) {
+        if (str[i] == '+') {
+            result += ' ';
+        } else if (str[i] == '%' && i + 2 < str.size()) {
+            string hex = str.substr(i + 1, 2);
+            char decodedChar = static_cast<char>(strtol(hex.c_str(), nullptr, 16));
+            result += decodedChar;
+            i += 2;
+        } else {
+            result += str[i];
+        }
+    }
+    return result;
 }
 
-// Reads stdin content
-string readStdin(size_t length) {
-    string data(length, '\0');
-    cin.read(&data[0], length);
-    return data;
-}
-
-// Extracts value for a key in url-encoded form data
-string extractFormField(const string& data, const string& key) {
-    size_t start = data.find(key + "=");
-    if (start == string::npos) return "";
-    start += key.length() + 1;
-    size_t end = data.find("&", start);
-    return data.substr(start, end - start);
+// Parse application/x-www-form-urlencoded into key-value pairs
+map<string, string> parseFormData(const string& data) {
+    map<string, string> result;
+    stringstream ss(data);
+    string pair;
+    while (getline(ss, pair, '&')) {
+        size_t eq = pair.find('=');
+        if (eq != string::npos) {
+            string key = urlDecode(pair.substr(0, eq));
+            string value = urlDecode(pair.substr(eq + 1));
+            result[key] = value;
+        }
+    }
+    return result;
 }
 
 int main() {
     cout << "Content-type: text/html\n\n";
 
-    string method = getEnv("REQUEST_METHOD");
+    string method = getenv("REQUEST_METHOD") ? getenv("REQUEST_METHOD") : "";
     if (method != "POST") {
-        cout << "<p>Error: Only POST method is supported.</p>";
+        cout << "<p>Error: Only POST method supported.</p>";
         return 1;
     }
 
-    string contentType = getEnv("CONTENT_TYPE");
-    string contentLengthStr = getEnv("CONTENT_LENGTH");
-
-    if (contentType.find("multipart/form-data") != string::npos) {
-        // Not implemented: parsing multipart form data (advanced)
-        cout << "<p>Error: File upload via multipart/form-data is not yet supported in this version.</p>";
+    string contentLengthStr = getenv("CONTENT_LENGTH") ? getenv("CONTENT_LENGTH") : "";
+    size_t contentLength = 0;
+    try {
+        contentLength = static_cast<size_t>(stoi(contentLengthStr));
+    } catch (...) {
+        cout << "<p>Error: Invalid content length.</p>";
         return 1;
     }
 
-    // Handle x-www-form-urlencoded POST
-    size_t contentLength = atoi(contentLengthStr.c_str());
-    string postData = readStdin(contentLength);
+    string postData(contentLength, '\0');
+    cin.read(&postData[0], contentLength);
 
-    string numTeamsStr = extractFormField(postData, "numTeams");
-    int numTeams = atoi(numTeamsStr.c_str());
+    map<string, string> formData = parseFormData(postData);
+
+    if (formData.find("numTeams") == formData.end()) {
+        cout << "<h2 style='color: red;'>Missing 'numTeams' input.</h2>";
+        return 1;
+    }
+
+    int numTeams = 0;
+    try {
+        numTeams = stoi(formData["numTeams"]);
+    } catch (...) {
+        cout << "<h2 style='color: red;'>Invalid number format for teams.</h2>";
+        return 1;
+    }
 
     if (numTeams < 2 || numTeams > 9) {
-        cout << "<h1 style='color: red;'>Invalid number of teams. Please enter a value between 2 and 9.</h1>";
+        cout << "<h2 style='color: red;'>Number of teams must be between 2 and 9.</h2>";
         return 1;
     }
 
-    // Output the next HTML form
+    // Output form for team names
     cout << "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Team Names</title>";
     cout << "<style>body { background-color: #001f3f; color: gold; font-family: sans-serif; text-align: center; padding: 50px; }";
     cout << "input { font-size: 1.2rem; margin: 10px; padding: 8px; border-radius: 5px; border: none; width: 250px; }";
@@ -71,10 +93,10 @@ int main() {
     for (int i = 1; i <= numTeams; ++i) {
         cout << "<input type='text' name='team" << i << "' placeholder='Team " << i << " Name' required><br>";
     }
+
     cout << "<input type='hidden' name='teamCount' value='" << numTeams << "'>";
     cout << "<button type='submit'>Continue to Game</button>";
-    cout << "</form>";
+    cout << "</form></body></html>";
 
-    cout << "</body></html>";
     return 0;
 }
