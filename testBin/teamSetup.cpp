@@ -33,13 +33,24 @@ int main() {
         }
 
         string numTeamsStr = it->getValue();
-        regex intRegex("^[0-9]+$");
-
-        if (!regex_match(numTeamsStr, intRegex)) {
+        if(numTeamStr.length() != 1) {
             cout << h2("Invalid input: Please enter a number between 2 and 9.") << endl;
             cout << "</body></html>";
             return 1;
         }
+        if(numTeamStr[0] < 50 || numTeamStr > 57) {
+            cout << h2("Invalid input: Please enter a number between 2 and 9.") << endl;
+            cout << "</body></html>";
+            return 1;
+        }
+        
+        // regex intRegex("^[0-9]+$");
+
+        // if (!regex_match(numTeamsStr, intRegex)) {
+        //     cout << h2("Invalid input: Please enter a number between 2 and 9.") << endl;
+        //     cout << "</body></html>";
+        //     return 1;
+        // }
 
         int numTeams = stoi(numTeamsStr);
 
