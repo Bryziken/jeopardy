@@ -1,5 +1,5 @@
 #include <iostream>
-#include <regex>
+// #include <regex>
 #include <cgicc/Cgicc.h>
 #include <cgicc/FormEntry.h>
 #include <cgicc/HTTPHTMLHeader.h>
@@ -33,12 +33,12 @@ int main() {
         }
 
         string numTeamsStr = it->getValue();
-        if(numTeamStr.length() != 1) {
+        if(numTeamsStr.length() != 1) {
             cout << h2("Invalid input: Please enter a number between 2 and 9.") << endl;
             cout << "</body></html>";
             return 1;
         }
-        if(numTeamStr[0] < 50 || numTeamStr > 57) {
+        if(numTeamsStr[0] < 50 || numTeamsStr[0] > 57) {
             cout << h2("Invalid input: Please enter a number between 2 and 9.") << endl;
             cout << "</body></html>";
             return 1;
