@@ -3,6 +3,7 @@
 #include <cgicc/FormEntry.h>
 #include <cgicc/HTTPHTMLHeader.h>
 #include <cgicc/HTMLClasses.h>
+#include <regex>
 
 using namespace std;
 using namespace cgicc;
@@ -53,7 +54,7 @@ int main() {
 
         // Form to enter team names
         cout << h1("Enter Team Names") << endl;
-        cout << "<form action='/cgi-bin/scorePage.cgi' method='post'>" << endl;
+        cout << "<form action='/cgi-bin/uploadQuestions' method='post'>" << endl;
 
         for (int i = 1; i <= numTeams; ++i) {
             cout << "<input type='text' name='team" << i << "' placeholder='Team " << i << " Name' required><br>" << endl;
