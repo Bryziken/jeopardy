@@ -1,0 +1,33 @@
+{
+    "categories": ["Science", "History", "Math", "Literature"],
+    "questions": [
+    [
+        { "question": "What planet is known as the Red Planet?", "answer": "Mars", "value": 100 },
+        { "question": "What gas do plants breathe in?", "answer": "Carbon Dioxide", "value": 200 },
+        { "question": "What is H2O?", "answer": "Water", "value": 300 },
+        { "question": "What part of the plant conducts photosynthesis?", "answer": "Leaves", "value": 400 },
+        { "question": "What force keeps us on the ground?", "answer": "Gravity", "value": 500 }
+    ],
+    [
+        { "question": "Who was the first president of the US?", "answer": "George Washington", "value": 100 },
+        { "question": "What war ended in 1945?", "answer": "World War II", "value": 200 },
+        { "question": "Who discovered America?", "answer": "Christopher Columbus", "value": 300 },
+        { "question": "Which empire built the Colosseum?", "answer": "Roman Empire", "value": 400 },
+        { "question": "What wall came down in 1989?", "answer": "Berlin Wall", "value": 500 }
+    ],
+    [
+        { "question": "What’s 5 x 5?", "answer": "25", "value": 100 },
+        { "question": "What is the square root of 81?", "answer": "9", "value": 200 },
+        { "question": "What is 2 + 2 x 2?", "answer": "6", "value": 300 },
+        { "question": "What is 7 squared?", "answer": "49", "value": 400 },
+        { "question": "What is 12 divided by 4?", "answer": "3", "value": 500 }
+    ],
+    [
+        { "question": "Who wrote 'Hamlet'?", "answer": "William Shakespeare", "value": 100 },
+        { "question": "Who wrote '1984'?", "answer": "George Orwell", "value": 200 },
+        { "question": "What genre is 'The Odyssey'?", "answer": "Epic Poetry", "value": 300 },
+        { "question": "Who wrote 'Pride and Prejudice'?", "answer": "Jane Austen", "value": 400 },
+        { "question": "What novel begins with 'Call me Ishmael'?", "answer": "Moby-Dick", "value": 500 }
+    ]
+    ]
+}
