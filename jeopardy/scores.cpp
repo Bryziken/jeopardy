@@ -47,23 +47,43 @@ int main() {
         // 3. Construct the JSON output for scores
         string json = "[\n";
         for (size_t i = 0; i < teams.size(); ++i) {
+            string cleanName = teams[i].name;
+            // Escape any double quotes (to avoid breaking JSON)
+            size_t pos = 0;
+            while ((pos = cleanName.find("\"", pos)) != string::npos) {
+                cleanName.replace(pos, 1, "\\\"");
+                pos += 2;
+            }
+        
             json += "  {\n";
-            json += "    \"name\": \"" + teams[i].name + "\",\n";
+            json += "    \"name\": \"" + cleanName + "\",\n";
             json += "    \"score\": " + to_string(teams[i].score) + "\n";
             json += "  }";
             if (i < teams.size() - 1) json += ",";
             json += "\n";
         }
         json += "]";
-
-        // 4. Save JSON data to file for future use (optional)
+        // 4. Save JSON data to file for future use
         ofstream outFile("/home/student/ortegbry/public_html/cgi-bin/scores.json");
         if (outFile.is_open()) {
-            outFile << json;
+            outFile << json;  // Write the JSON content to the file
             outFile.close();
         } else {
             cerr << "Error: Could not write to scores.json" << endl;
         }
+
+ofstream fio("jeopardy2.html", ios::app);
+
+    // Check if the file is opened successfully
+    if (fio.is_open()) {
+        fio << "File opened successfully." << endl;
+        // Close the file
+        fio.close();
+    }
+    else {
+        // Display error if file was not opened
+        cout << "Error opening file!" << endl;
+    }
 
         // 5. Output the redirect to jeopardy.html
         cout << "Content-type: text/html\r\n";  // HTTP header for HTML content
