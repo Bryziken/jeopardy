@@ -239,7 +239,7 @@
             button.classList.add("clicked");
             clickSound.currentTime = 0;
             clickSound.play();
-            startTimer();
+            startTimer(q.id);
           };
           button.addEventListener("mouseenter", () => {
             if (audioUnlocked) {
@@ -276,26 +276,60 @@
       currentScore += delta;
       display.textContent = currentScore;
     }
-    function startTimer() {
-  fetch("/~ortegbry@kean.edu/cgi-bin/timerSystem?start")
-    .then(() => updateTimer());
+    function startTimer(questionId) {
+  fetch(`/~ortegbry@kean.edu/cgi-bin/timerSystem.cgi?start&id=${encodeURIComponent(questionId)}`)
+    .then(() => updateTimer(questionId));
 }
-    function updateTimer() {
-  fetch("/~ortegbry@kean.edu/cgi-bin/timerSystem?check")
+
+function updateTimer(questionId) {
+  fetch(`/~ortegbry@kean.edu/cgi-bin/timerSystem.cgi?check&id=${encodeURIComponent(questionId)}`)
     .then(res => res.text())
     .then(text => {
       document.getElementById("timerBox").innerText = text;
       if (!text.includes("Time's up")) {
-        setTimeout(updateTimer, 1000);
+        setTimeout(() => updateTimer(questionId), 1000);
       } else {
-        alert("Time's up!");
-        // Optional: Auto-submit answer or disable input
+        alert("Time's up! Please answer faster next time.");
       }
     });
 }
+function displayTeams(teams) {
+  const scoreboard = document.getElementById("scoreboard");
+  scoreboard.innerHTML = "";
 
-// Call this when question loads
-updateTimer();
+  teams.forEach(team => {
+    const teamDiv = document.createElement("div");
+    teamDiv.className = "team-counter";
+
+    const name = document.createElement("h2");
+    name.textContent = team.name;
+
+    const score = document.createElement("div");
+    score.className = "score-display";
+    score.textContent = team.score;
+
+    const buttons = document.createElement("div");
+    buttons.className = "score-buttons";
+
+    const addBtn = document.createElement("button");
+    addBtn.textContent = "+100";
+    addBtn.onclick = () => changeScore(addBtn, 100);
+
+    const subBtn = document.createElement("button");
+    subBtn.textContent = "-100";
+    subBtn.onclick = () => changeScore(subBtn, -100);
+
+    buttons.appendChild(addBtn);
+    buttons.appendChild(subBtn);
+
+    teamDiv.appendChild(name);
+    teamDiv.appendChild(score);
+    teamDiv.appendChild(buttons);
+
+    scoreboard.appendChild(teamDiv);
+  });
+}
+
   </script>
 </body>
 
