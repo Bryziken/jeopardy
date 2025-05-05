@@ -173,12 +173,12 @@ string getPartOne() {
 
   <div class=\"container\"></div>
 
-  <div id=\"scoreboard\" style=\"display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-top: 30px;\">;"
+  <div id=\"scoreboard\" style=\"display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-top: 30px;\"><br/>";
 }
 
 string getPartTwo() {
 
-    return "<!-- Modal -->
+    return R"(<!-- Modal -->
     <div id=\"modal\" style=\"display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:#001f3fdd; color:white; display:flex; justify-content:center; align-items:center; z-index:9999;\">
       <div style=\"background:#0074D9; padding:30px; border:3px solid white; border-radius:10px; text-align:center; max-width:600px; width:90%;\">
         <h2 id=\"modal-question\">Question</h2>
@@ -288,5 +288,5 @@ string getPartTwo() {
     </script>
   </body>
   
-  </html>"
+  </html>)";
 }

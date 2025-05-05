@@ -6,16 +6,12 @@
 
 using namespace std;
 
-int main() {
+string getScoreBoardHTML(vector<string> teamNames, int numTeams) {
     // Output HTML header
     cout << "Content-type: text/html\n\n";
 
     // Get the number of teams from environment variable (GET or POST)
-    string input;
-    getline(cin, input);  // for POST form data like: teamCount=3&team1=Red&team2=Blue&team3=Green
-
-    int numTeams = 0;
-    vector<string> teamNames;
+    string divHTML = "";
 
     size_t pos = 0;
     while ((pos = input.find('&')) != string::npos) {
@@ -46,10 +42,9 @@ int main() {
     }
 
     // Output the HTML divs
-    cout << "<div id=\"scoreboard\" style=\"display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin-top:30px;\">\n";
 
     for (int i = 0; i < numTeams && i < (int)teamNames.size(); ++i) {
-        cout <<
+        divHTML.append(
             "  <div class=\"team-counter\">\n"
             "    <h2>" << teamNames[i] << "</h2>\n"
             "    <div class=\"score-display\" id=\"score" << i << "\">0</div>\n"
@@ -57,10 +52,11 @@ int main() {
             "      <button onclick=\"changeScore(this, -100)\">-100</button>\n"
             "      <button onclick=\"changeScore(this, 100)\">+100</button>\n"
             "    </div>\n"
-            "  </div>\n";
+            "  </div>\n");  
     }
+    divHTML.append("</div>");
 
-    cout << "</div>\n";
+    
 
-    return 0;
+    return divHTML;
 }

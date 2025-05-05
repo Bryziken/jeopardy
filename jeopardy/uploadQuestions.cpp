@@ -46,6 +46,23 @@ int main() {
                 return 1;
             }
         }
+
+
+
+        ofstream file("jepordy2.html");
+        file << getPartOne()
+        file << getScoreBoardHTML(teamNames, teamNames.size());
+        file << getPartTwo();
+
+
+
+
+
+
+
+
+
+
         // Auto-submit hidden form to scores.cpp
         cout << "<h1>Upload successful!</h1>\n";
         cout << "<p>Redirecting to game board...</p>\n";
