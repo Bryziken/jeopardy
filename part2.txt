@@ -1,0 +1,110 @@
+<button onclick="resetBoard()" style="margin-top:20px; padding:10px 20px; font-size:1.5rem; background-color: #2ECC40; color:white; border:none; border-radius:8px;">
+  Restart Game
+</button>
+
+  <!-- Modal -->
+  <div id="modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:#001f3fdd; color:white; display:flex; justify-content:center; align-items:center; z-index:9999;">
+    <div style="background:#0074D9; padding:30px; border:3px solid white; border-radius:10px; text-align:center; max-width:600px; width:90%;">
+      <h2 id="modal-question">Question</h2>
+      <p id="modal-answer" style="display:none; margin-top:20px; font-size:1.2rem;"></p>
+      <div style="margin-top:20px;">
+        <button onclick="document.getElementById('modal-answer').style.display='block'" style="margin:10px; font-size:1rem;">Show Answer</button>
+        <button onclick="closeModal()" style="margin:10px; font-size:1rem;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    let questionsData = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      fetch("/~ortegbry@kean.edu/cgi-bin/getQuestion")
+      .then(res => res.json())
+        .then(data => {
+          questionsData = data;
+          populateBoard(data);
+        })
+        .catch(err => {
+          console.error("Error loading questions:", err);
+          alert("Failed to load questions.");
+        });
+    });
+    fetch("/~ortegbry@kean.edu/cgi-bin/getScores")
+  .then(res => res.json())
+  .then(data => {
+    teamsData = data;
+    displayTeams(teamsData);
+  })
+  .catch(err => {
+    console.error("Error loading teams:", err);
+    alert("Failed to load teams.");
+  });
+
+    function populateBoard(data) {
+      const container = document.querySelector(".container");
+      container.innerHTML = '';
+
+      // Add category titles
+      data.categories.forEach(category => {
+        const div = document.createElement("div");
+        div.className = "title";
+        div.textContent = category;
+        container.appendChild(div);
+      });
+
+      // Add questions
+      for (let i = 0; i < 5; i++) {
+        for (let j = 0; j < data.categories.length; j++) {
+          const q = data.questions[j][i];
+          const button = document.createElement("button");
+          button.className = "question";
+          button.textContent = `$${q.value}`;
+          button.onclick = () => {
+            document.getElementById("modal-question").textContent = q.question;
+            document.getElementById("modal-answer").textContent = q.answer;
+            document.getElementById("modal-answer").style.display = "none";
+            document.getElementById("modal").style.display = "flex";
+            button.classList.add("clicked");
+            clickSound.currentTime = 0;
+            clickSound.play();
+          };
+          button.addEventListener("mouseenter", () => {
+            if (audioUnlocked) {
+              hoverSound.currentTime = 0;
+              hoverSound.play();
+            }
+          });
+          container.appendChild(button);
+        }
+      }
+    }
+
+    function resetBoard() {
+      fetch("../cgi-bin/getQuestions")
+        .then(res => res.json())
+        .then(data => {
+          questionsData = data;
+          populateBoard(data);
+        })
+        .catch(err => {
+          console.error("Failed to reload questions:", err);
+        });
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+      document.getElementById('modal-answer').style.display = 'none';
+    }
+
+    function changeScore(button, delta) {
+      const teamCounter = button.closest('.team-counter');
+      const display = teamCounter.querySelector('.score-display');
+      let currentScore = parseInt(display.textContent, 10);
+      currentScore += delta;
+      display.textContent = currentScore;
+    }
+  </script>
+</body>
+
+</html>
