@@ -11,7 +11,7 @@
 using namespace std;
 using namespace cgicc;
 
-int validate() {
+int main() {
     try {
         Cgicc cgi;
 
