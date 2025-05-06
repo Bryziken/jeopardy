@@ -168,9 +168,6 @@
   <div class="container"></div>
 
   <div id="scoreboard" style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-top: 30px;"></div>
-<button onclick="resetBoard()" style="margin-top:20px; padding:10px 20px; font-size:1.5rem; background-color: #2ECC40; color:white; border:none; border-radius:8px;">
-  Restart Game
-</button>
 
   <!-- Modal -->
   <div id="modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:#001f3fdd; color:white; display:flex; justify-content:center; align-items:center; z-index:9999;">
@@ -187,113 +184,121 @@
 
   <!-- JavaScript -->
   <script>
-    let questionsData = null;
+  let questionsData = null;
+  let timerInterval = null;
 
-    document.addEventListener("DOMContentLoaded", () => {
-      fetch("/~ortegbry@kean.edu/cgi-bin/getQuestion")
+  document.addEventListener("DOMContentLoaded", () => {
+    fetch("/~ortegbry@kean.edu/cgi-bin/getQuestion")
       .then(res => res.json())
-        .then(data => {
-          questionsData = data;
-          populateBoard(data);
-        })
-        .catch(err => {
-          console.error("Error loading questions:", err);
-          alert("Failed to load questions.");
-        });
-    });
-    fetch("/~ortegbry@kean.edu/cgi-bin/getScores")
-  .then(res => res.json())
-  .then(data => {
-    teamsData = data;
-    displayTeams(teamsData);
-  })
-  .catch(err => {
-    console.error("Error loading teams:", err);
-    alert("Failed to load teams.");
-  });
-
-    function populateBoard(data) {
-      const container = document.querySelector(".container");
-      container.innerHTML = '';
-
-      // Add category titles
-      data.categories.forEach(category => {
-        const div = document.createElement("div");
-        div.className = "title";
-        div.textContent = category;
-        container.appendChild(div);
+      .then(data => {
+        questionsData = data;
+        populateBoard(data);
+      })
+      .catch(err => {
+        console.error("Error loading questions:", err);
+        alert("Failed to load questions.");
       });
 
-      // Add questions
-      for (let i = 0; i < 5; i++) {
-        for (let j = 0; j < data.categories.length; j++) {
-          const q = data.questions[j][i];
-          const button = document.createElement("button");
-          button.className = "question";
-          button.textContent = `$${q.value}`;
-          button.onclick = () => {
-            document.getElementById("modal-question").textContent = q.question;
-            document.getElementById("modal-answer").textContent = q.answer;
-            document.getElementById("modal-answer").style.display = "none";
-            document.getElementById("modal").style.display = "flex";
-            button.classList.add("clicked");
+    fetch("/~ortegbry@kean.edu/cgi-bin/getScores")
+      .then(res => res.json())
+      .then(data => {
+        teamsData = data;
+        displayTeams(teamsData);
+      })
+      .catch(err => {
+        console.error("Error loading teams:", err);
+        alert("Failed to load teams.");
+      });
+  });
+
+  function startCountdown(seconds = 30) {
+    const timerBox = document.getElementById("timerBox");
+    clearInterval(timerInterval); // Clear any previous timer
+
+    timerBox.textContent = `Time remaining: ${seconds} seconds`;
+
+    timerInterval = setInterval(() => {
+      seconds--;
+      if (seconds <= 0) {
+        clearInterval(timerInterval);
+        timerBox.textContent = "Time's up!";
+      } else {
+        timerBox.textContent = `Time remaining: ${seconds} seconds`;
+      }
+    }, 1000);
+  }
+
+  function populateBoard(data) {
+    const container = document.querySelector(".container");
+    container.innerHTML = '';
+
+    // Add category titles
+    data.categories.forEach(category => {
+      const div = document.createElement("div");
+      div.className = "title";
+      div.textContent = category;
+      container.appendChild(div);
+    });
+
+    // Add questions
+    for (let i = 0; i < 5; i++) {
+      for (let j = 0; j < data.categories.length; j++) {
+        const q = data.questions[j][i];
+        const button = document.createElement("button");
+        button.className = "question";
+        button.textContent = `$${q.value}`;
+
+        button.onclick = () => {
+          document.getElementById("modal-question").textContent = q.question;
+          document.getElementById("modal-answer").textContent = q.answer;
+          document.getElementById("modal-answer").style.display = "none";
+          document.getElementById("modal").style.display = "flex";
+          button.classList.add("clicked");
+          if (typeof clickSound !== "undefined") {
             clickSound.currentTime = 0;
             clickSound.play();
-            startTimer(q.id);
-          };
-          button.addEventListener("mouseenter", () => {
-            if (audioUnlocked) {
-              hoverSound.currentTime = 0;
-              hoverSound.play();
-            }
-          });
-          container.appendChild(button);
-        }
-      }
-    }
+          }
+          startCountdown(); // 🎯 Start the timer!
+        };
 
-    function resetBoard() {
-      fetch("../cgi-bin/getQuestions")
-        .then(res => res.json())
-        .then(data => {
-          questionsData = data;
-          populateBoard(data);
-        })
-        .catch(err => {
-          console.error("Failed to reload questions:", err);
+        button.addEventListener("mouseenter", () => {
+          if (typeof audioUnlocked !== "undefined" && audioUnlocked) {
+            hoverSound.currentTime = 0;
+            hoverSound.play();
+          }
         });
-    }
 
-    function closeModal() {
-      document.getElementById('modal').style.display = 'none';
-      document.getElementById('modal-answer').style.display = 'none';
-    }
-
-    function changeScore(button, delta) {
-      const teamCounter = button.closest('.team-counter');
-      const display = teamCounter.querySelector('.score-display');
-      let currentScore = parseInt(display.textContent, 10);
-      currentScore += delta;
-      display.textContent = currentScore;
-    }
-    function startTimer(questionId) {
-  fetch(`/~ortegbry@kean.edu/cgi-bin/timerSystem.cgi?start&id=${encodeURIComponent(questionId)}`)
-    .then(() => updateTimer(questionId));
-}
-
-function updateTimer(questionId) {
-  fetch(`/~ortegbry@kean.edu/cgi-bin/timerSystem.cgi?check&id=${encodeURIComponent(questionId)}`)
-    .then(res => res.text())
-    .then(text => {
-      document.getElementById("timerBox").innerText = text;
-      if (!text.includes("Time's up")) {
-        setTimeout(() => updateTimer(questionId), 1000);
-      } else {
-        alert("Time's up! Please answer faster next time.");
+        container.appendChild(button);
       }
-    });
-}
-function displayTeams(teams) {
+    }
+  }
+
+  function resetBoard() {
+    fetch("../cgi-bin/getQuestions")
+      .then(res => res.json())
+      .then(data => {
+        questionsData = data;
+        populateBoard(data);
+      })
+      .catch(err => {
+        console.error("Failed to reload questions:", err);
+      });
+  }
+
+  function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+    document.getElementById('modal-answer').style.display = 'none';
+    clearInterval(timerInterval); // 🛑 Stop timer on modal close
+  }
+
+  function changeScore(button, delta) {
+    const teamCounter = button.closest('.team-counter');
+    const display = teamCounter.querySelector('.score-display');
+    let currentScore = parseInt(display.textContent, 10);
+    currentScore += delta;
+    display.textContent = currentScore;
+  }
+  function displayTeams(teams) {
   const scoreboard = document.getElementById("scoreboard");
   scoreboard.innerHTML = "";
 
@@ -329,7 +334,6 @@ function displayTeams(teams) {
     scoreboard.appendChild(teamDiv);
   });
 }
-
   </script>
 </body>
 
